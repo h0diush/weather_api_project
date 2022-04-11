@@ -106,7 +106,6 @@ celerybeat.pid
 .venv
 Pipfile
 Pipfile.lock
-*migrations/
 env/
 venv/
 ENV/
