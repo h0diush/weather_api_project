@@ -16,7 +16,6 @@ class User(AbstractUser):
     objects = CustomUserManager()
     phone = models.CharField('Номер телефона', max_length=13,
                              validators=[validate_phone], null=True)
-    # TODO посмотреть валидацию номера телефона
 
     def __str__(self):
         if self.first_name == '' and self.last_name == '':
@@ -24,7 +23,8 @@ class User(AbstractUser):
         return self.username
 
     def save(self, *args, **kwargs):
-        self.phone = f'+375{self.phone}'
+        if self.phone[:4] != '+375':
+            self.phone = f'+375{self.phone}'
         super(User, self).save(*args, **kwargs)
 
     def get_full_name(self):
