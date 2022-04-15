@@ -8,7 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('auth/', include('djoser.urls')),
     # path('auth/', include('djoser.urls.authtoken')),
-    path('auth', TokenCreateView.as_view(),
+    path('auth/', TokenCreateView.as_view(),
          name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(),
          name='token_refresh'),

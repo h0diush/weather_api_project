@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import environ
 # from django.utils.log import DEFAULT_LOGGING
+from telegram import Bot
 
 from config.settings.base import *
 
@@ -10,8 +11,12 @@ environ.Env.read_env(env_file=".env")
 env = environ.Env(DEBUG=(bool, False))
 
 DEBUG = env('DEBUG')
-
+TG_ID = env('TG_ID')
+TOKEN_BOT = env('TOKEN_BOT')
+BOT = Bot(token=TOKEN_BOT)
 ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(" ")
+
+APPID_OPENWEATHERMAP = env('APPID_OPENWEATHERMAP')
 
 SECRET_KEY = env('SECRET_KEY')
 
@@ -30,7 +35,6 @@ LOCAL_APPS = [
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
 EMAIL_HOST = env('EMAIL_HOST')

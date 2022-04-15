@@ -1,14 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import User, TokenTelegramBot
 
 
 @admin.register(User)
 class UserAdminModel(UserAdmin):
     ordering = ['email', 'username', 'phone']
     model = User
-    list_display = ['upper_get_full_name', 'email', 'phone', ]
+    list_display = ['upper_get_full_name', 'email', 'phone', 'city', 'tg_id']
     list_filter = ['username', 'email', 'phone']
 
     def upper_get_full_name(self, obj):
@@ -22,7 +22,7 @@ class UserAdminModel(UserAdmin):
         ("Авторизация", {'fields': ('username', 'email', 'password')}),
         ("Персональная информация", {
             'fields': (
-                'first_name', 'last_name', 'surname', 'phone',
+                'first_name', 'last_name', 'surname', 'phone', 'city', 'tg_id'
             )}),
         ("Разрешения", {
             'fields': ('is_staff', 'is_active', 'is_superuser',)}),
@@ -44,3 +44,6 @@ class UserAdminModel(UserAdmin):
              )
          }),
     )
+
+
+admin.site.register(TokenTelegramBot)

@@ -1,7 +1,11 @@
 from rest_framework import serializers
+
 from apps.users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from config.settings.development import BOT, TG_ID
 from ..validators import validate_phone as vd
+from .utilits import get_temperature as temperature_in_city
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -12,7 +16,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email', 'username', 'phone', 'last_name', 'first_name', 'surname',
-            'password'
+            'password', 'city'
         )
 
     def create(self, validated_data):
@@ -28,7 +32,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-    def validate_phone(self, value):
+    @staticmethod
+    def validate_phone(value):
         return vd(value)
 
 
@@ -40,14 +45,32 @@ class UserListSerializer(serializers.ModelSerializer):
 
 class CurrentUserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    temperature = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'phone', 'username', 'full_name')
+        fields = (
+            'id', 'email', 'phone', 'username', 'full_name', 'city',
+            'temperature', 'country'
+        )
 
-    def get_full_name(self, obj):
+    @staticmethod
+    def _get_temperature_and_country(city):
+        TEMP, COUNTRY = temperature_in_city(city)
+        BOT.send_message(chat_id=431749676, text='hello')
+        return {'temp': TEMP, 'country': COUNTRY}
+
+    @staticmethod
+    def get_full_name(obj):
         full_name = f'{obj.last_name} {obj.first_name} {obj.surname}'
         return full_name
+
+    def get_temperature(self, obj):
+        return f'{self._get_temperature_and_country(obj.city)["temp"]} °C'
+
+    def get_country(self, obj):
+        return f'{self._get_temperature_and_country(obj.city)["country"]}'
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -58,7 +81,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email', 'phone', 'username', 'last_name', 'first_name', 'surname',
+            'city',
         )
+
+    @staticmethod
+    def validate_phone(value):
+        return vd(value)
 
 
 class TokenSerializer(TokenObtainPairSerializer):
@@ -68,6 +96,7 @@ class TokenSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token['name'] = user.username
         token['email'] = user.email
+        token['city'] = user.city
         token['created'] = f'{user.date_joined.strftime("%H:%M  %d.%b.%Y")}'
 
         return token
