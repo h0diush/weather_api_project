@@ -58,7 +58,6 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     @staticmethod
     def _get_temperature_and_country(city):
         TEMP, COUNTRY = temperature_in_city(city)
-        BOT.send_message(chat_id=431749676, text='hello')
         return {'temp': TEMP, 'country': COUNTRY}
 
     @staticmethod
@@ -98,5 +97,4 @@ class TokenSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
         token['city'] = user.city
         token['created'] = f'{user.date_joined.strftime("%H:%M  %d.%b.%Y")}'
-
         return token

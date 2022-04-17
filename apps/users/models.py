@@ -40,7 +40,8 @@ class User(AbstractUser):
 
 class TokenTelegramBot(models.Model):
     user = models.ForeignKey(User, verbose_name='Пользователь',
-                             on_delete=models.CASCADE)
+                             on_delete=models.CASCADE,
+                             related_name='users_bot')
     code = models.CharField(max_length=15)
 
     class Meta:

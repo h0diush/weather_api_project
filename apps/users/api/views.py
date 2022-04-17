@@ -1,15 +1,12 @@
 from djoser.views import UserViewSet
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.decorators import action
-from django.core.exceptions import ObjectDoesNotExist
 
 from .serializers import TokenSerializer, UserCreateSerializer, \
     UserUpdateSerializer
-from ..models import User, TokenTelegramBot
-from django.http import HttpResponse
-from ipware import get_client_ip as ip
+from ..models import TokenTelegramBot, User
 
 
 class UserView(UserViewSet):
@@ -29,12 +26,15 @@ class UserView(UserViewSet):
             user=request.user)
         if created:
             token.save()
+
             return Response(
                 {
                     f'message': f'Код сгенерирован {token.code}, '
-                    f'далее необходимо перейти в тг бот и отправить код'
+                                f'далее необходимо перейти в '
+                                f'тг бот и отправить код'
                 }
             )
+
         token.delete()
         return Response({'message': 'Код успешно удален'})
 
