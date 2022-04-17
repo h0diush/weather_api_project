@@ -1,10 +1,10 @@
 import telebot
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
 from apps.users.api.utilits import get_temperature
 from apps.users.models import TokenTelegramBot, User
 from config.settings.development import TOKEN_BOT
-from django.core.exceptions import ObjectDoesNotExist
 
 bot = telebot.TeleBot(TOKEN_BOT)
 
@@ -55,9 +55,13 @@ def get_weather(message):
             f'https://openweathermap.org/img/w/{temperature["icon"]}.png',
             caption=answer
         )
-        # bot.send_message(user.tg_id, answer)
     except ObjectDoesNotExist:
         bot.send_message(message.chat.id, 'Вы не авторизованы')
+    except MultipleObjectsReturned:
+        bot.send_message(
+            message.chat.id,
+            'Найдено два заренестрированных пользователя. /delete'
+        )
 
 
 @bot.message_handler(commands=['delete'])
@@ -73,6 +77,17 @@ def get_delete_token(message):
             'До скорой встречи :)'
         )
     except ObjectDoesNotExist:
+        bot.send_message(
+            message.chat.id,
+            'Вы не авторизованы.\nДля авторизации выполните команду /reg'
+        )
+    except MultipleObjectsReturned:
+        users = User.objects.filter(tg_id=message.chat.id)
+        for user in users:
+            user.tg_id = ''
+            token = TokenTelegramBot.objects.get(user=user)
+            token.delete()
+            user.save()
         bot.send_message(
             message.chat.id,
             'Вы не авторизованы.\nДля авторизации выполните команду /reg'

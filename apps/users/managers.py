@@ -4,7 +4,6 @@ from django.core.validators import validate_email
 
 
 class CustomUserManager(BaseUserManager):
-    '''Создание пользователя'''
 
     def email_valid(self, email):
         try:

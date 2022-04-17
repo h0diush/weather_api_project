@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, TokenTelegramBot
+from .models import TokenTelegramBot, User
 
 
 @admin.register(User)
