@@ -9,6 +9,16 @@ from django.core.exceptions import ObjectDoesNotExist
 bot = telebot.TeleBot(TOKEN_BOT)
 
 
+def send_message_for_user(chat_id, city):
+    temperature = get_temperature(city)
+    answer = f' {city}. Температура:  {temperature["temperature"]} °C'
+    bot.send_photo(
+        chat_id,
+        f'https://openweathermap.org/img/w/{temperature["icon"]}.png',
+        caption=answer
+    )
+
+
 def _get_user_by_token(chat_id):
     user = User.objects.get(tg_id=chat_id)
     return user
@@ -16,15 +26,20 @@ def _get_user_by_token(chat_id):
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    text = '''
-        Добро пожаловать, данный бот будет указывать Вам погоду
-        '''
+    text = ('Добро пожаловать, данный бот будет указывать Вам погоду\n' +
+            f'Для авторизации, напишите /reg')
     bot.send_message(message.chat.id, text)
 
 
 @bot.message_handler(commands=['reg'])
 def reg_user(message):
-    bot.send_message(message.chat.id, 'Введите ключ')
+    if User.objects.filter(tg_id=message.chat.id).exists():
+        bot.send_message(
+            message.chat.id,
+            'Вы уже авторизованы\n/weather - посмотреть погуду,/delete - выйти'
+        )
+    else:
+        bot.send_message(message.chat.id, 'Введите ключ')
 
 
 @bot.message_handler(commands=['weather'])
@@ -33,9 +48,14 @@ def get_weather(message):
         user = _get_user_by_token(message.chat.id)
         temperature = get_temperature(user.city)
         answer = f'''
-            {user.city}. Температура:  {temperature[0]} °C
+            {user.city}. Температура:  {temperature['temperature']} °C
         '''
-        bot.send_message(user.tg_id, answer)
+        bot.send_photo(
+            user.tg_id,
+            f'https://openweathermap.org/img/w/{temperature["icon"]}.png',
+            caption=answer
+        )
+        # bot.send_message(user.tg_id, answer)
     except ObjectDoesNotExist:
         bot.send_message(message.chat.id, 'Вы не авторизованы')
 
@@ -75,7 +95,7 @@ def get_reg_user(message):
 
 
 class Command(BaseCommand):
-    help = 'Телеграмм бот'
+    help = 'Телеграм бот'
 
     def handle(self, *args, **options):
         bot.polling()

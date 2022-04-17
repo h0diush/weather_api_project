@@ -1,11 +1,9 @@
 from rest_framework import serializers
-
-from apps.users.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from config.settings.development import BOT, TG_ID
-from ..validators import validate_phone as vd
+from apps.users.models import User
 from .utilits import get_temperature as temperature_in_city
+from ..validators import validate_phone as vd
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -55,21 +53,23 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             'temperature', 'country'
         )
 
-    @staticmethod
-    def _get_temperature_and_country(city):
-        TEMP, COUNTRY = temperature_in_city(city)
-        return {'temp': TEMP, 'country': COUNTRY}
+    # @staticmethod
+    # def _get_temperature_and_country(city):
+    #     TEMP, COUNTRY, *args = temperature_in_city(city)
+    #     return {'temp': TEMP, 'country': COUNTRY}
 
     @staticmethod
     def get_full_name(obj):
         full_name = f'{obj.last_name} {obj.first_name} {obj.surname}'
         return full_name
 
-    def get_temperature(self, obj):
-        return f'{self._get_temperature_and_country(obj.city)["temp"]} °C'
+    @staticmethod
+    def get_temperature(obj):
+        return f'{temperature_in_city(obj.city)["temperature"]} °C'
 
-    def get_country(self, obj):
-        return f'{self._get_temperature_and_country(obj.city)["country"]}'
+    @staticmethod
+    def get_country(obj):
+        return f'{temperature_in_city(obj.city)["country"]}'
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

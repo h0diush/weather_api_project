@@ -18,6 +18,17 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(" ")
 
 APPID_OPENWEATHERMAP = env('APPID_OPENWEATHERMAP')
 
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'send_message_in_telegram': {
+        'task': 'apps.users.tasks.get_send_message',
+        'schedule': 10800.0
+    }
+}
+
 SECRET_KEY = env('SECRET_KEY')
 
 THIRD_PARTY_APPS = [

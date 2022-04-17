@@ -20,6 +20,12 @@ def get_temperature(city: str = None) -> list:
             params=params
         )
         res = response.json()
-        return [res['main']['temp'], res['sys']['country']]
+        # print()
+        info_dict = {
+            'temperature': res['main']['temp'],
+            'country': res['sys']['country'],
+            'icon': res['weather'][0]['icon']
+        }
+        return info_dict
     except KeyError:
         return 'error'
