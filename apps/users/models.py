@@ -3,7 +3,10 @@ import string
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import signals
 
+from apps.city.models import City
+from .api.utilits import get_temperature
 from .managers import CustomUserManager
 from .validators import validate_phone
 
@@ -28,14 +31,12 @@ class User(AbstractUser):
             return self.get_full_name()
         return self.username
 
-    def save(self, *args, **kwargs):
-        if self.phone[:4] != '+375':
-            self.phone = f'+375{self.phone}'
-        super(User, self).save(*args, **kwargs)
-
     def get_full_name(self):
         full_name = f'{self.last_name} {self.first_name} {self.surname}'
         return full_name.strip().title()
+
+    def get_phone(self):
+        return f'+375{self.phone}'
 
 
 class TokenTelegramBot(models.Model):
@@ -56,3 +57,21 @@ class TokenTelegramBot(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.code}'
+
+
+def city_save(sender, instance, signal, *args, **kwargs):
+    try:
+        if instance.city:
+            city, created = City.objects.get_or_create(name=instance.city)
+            if created:
+                city.name = instance.city,
+                city.country = get_temperature(instance.city)['country'],
+                city.count_users = 1
+            else:
+                city.count_users += 1
+                city.save()
+    except Exception:
+        pass
+
+
+signals.post_save.connect(city_save, sender=User)

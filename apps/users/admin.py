@@ -8,7 +8,8 @@ from .models import TokenTelegramBot, User
 class UserAdminModel(UserAdmin):
     ordering = ['email', 'username', 'phone']
     model = User
-    list_display = ['upper_get_full_name', 'email', 'phone', 'city', 'tg_id']
+    list_display = ['upper_get_full_name', 'email', 'get_output_phone', 'city',
+                    'tg_id']
     list_filter = ['username', 'email', 'phone']
 
     def upper_get_full_name(self, obj):
@@ -16,7 +17,11 @@ class UserAdminModel(UserAdmin):
             return f'{obj.get_full_name()} ({obj.username})'
         return obj.username
 
+    def get_output_phone(self, obj):
+        return obj.get_phone()
+
     upper_get_full_name.short_description = 'ФИО(Имя пользователя)'
+    get_output_phone.short_description = 'Номер телефона'
 
     fieldsets = (
         ("Авторизация", {'fields': ('username', 'email', 'password')}),

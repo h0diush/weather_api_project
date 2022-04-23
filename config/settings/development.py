@@ -41,7 +41,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "apps.weather.apps.WeatherConfig",
+    "apps.city.apps.WeatherConfig",
     "apps.users.apps.UsersConfig"
 ]
 
@@ -109,7 +109,7 @@ DJOSER = {
         # 'user_create': 'apps.users.api.serializers.UserCreateSerializer',
         'user': 'apps.users.api.serializers.UserListSerializer',
         'current_user': 'apps.users.api.serializers.CurrentUserSerializer',
-        # 'user_list': 'apps.users.api.serializers.UserListSerializer',
+        'user_list': 'apps.users.api.serializers.CurrentUserSerializer',
     },
     'PERMISSIONS': {
         'activation': ['rest_framework.permissions.AllowAny'],

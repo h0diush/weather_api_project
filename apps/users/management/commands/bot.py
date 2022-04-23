@@ -36,13 +36,13 @@ def reg_user(message):
     if User.objects.filter(tg_id=message.chat.id).exists():
         bot.send_message(
             message.chat.id,
-            'Вы уже авторизованы\n/weather - посмотреть погуду,/delete - выйти'
+            'Вы уже авторизованы\n/city - посмотреть погуду,/delete - выйти'
         )
     else:
         bot.send_message(message.chat.id, 'Введите ключ')
 
 
-@bot.message_handler(commands=['weather'])
+@bot.message_handler(commands=['city'])
 def get_weather(message):
     try:
         user = _get_user_by_token(message.chat.id)
@@ -90,7 +90,7 @@ def get_delete_token(message):
             user.save()
         bot.send_message(
             message.chat.id,
-            'Вы не авторизованы.\nДля авторизации выполните команду /reg'
+            'Аккаунты успешно удалены'
         )
 
 

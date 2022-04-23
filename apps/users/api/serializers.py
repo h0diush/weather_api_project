@@ -37,12 +37,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class UserListSerializer(serializers.ModelSerializer):
+    phone = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'phone', 'is_active')
 
+    @staticmethod
+    def get_phone(obj):
+        return f'+375{obj.phone}'
+
 
 class CurrentUserSerializer(serializers.ModelSerializer):
+    phone = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
     temperature = serializers.SerializerMethodField()
     country = serializers.SerializerMethodField()
@@ -54,10 +61,9 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             'temperature', 'country'
         )
 
-    # @staticmethod
-    # def _get_temperature_and_country(city):
-    #     TEMP, COUNTRY, *args = temperature_in_city(city)
-    #     return {'temp': TEMP, 'country': COUNTRY}
+    @staticmethod
+    def get_phone(obj):
+        return f'+375{obj.phone}'
 
     @staticmethod
     def get_full_name(obj):
